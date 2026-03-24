@@ -45,14 +45,22 @@ Separate cards with three dashes (\`---\`).
 ## Flashcard 2
 **Q:** What are the **Keyboard Shortcuts**?  
 **A:**  
-- **Right Arrow**: Next Card  
-- **Left Arrow**: Previous Card  
-- **Space**: Flip Card  
+- **Left/Right Arrows**: Navigate
+- **Space/Enter**: Flip Card  
 - **'R' Key**: Randomize Deck
+- **'F' Key**: Toggle Full Screen
+- **'D' Key**: Toggle Distraction-Free Mode
+- **Mouse Wheel**: Scroll left/right to navigate
 
 ---
 
 ## Flashcard 3
+**Q:** Can I **Export** or **Import** my cards?  
+**A:** **Yes!** In the **Setup** screen, use the **Export** button to save your deck as a \`.md\` file. Use **Import** to load any Markdown file and start studying instantly.
+
+---
+
+## Flashcard 4
 **Q:** Can I use **Markdown** inside my cards?  
 **A:** **Yes!** You can use **bold**, *italics*, \`code blocks\`, and even lists. The app renders them with a beautiful handwritten ink style.
 
@@ -214,6 +222,18 @@ export default function App() {
     setDeck(prev => [...prev].sort(() => Math.random() - 0.5));
     setCurrentIndex(0);
     setIsFlipped(false);
+  };
+
+  const handleWheel = (e: React.WheelEvent) => {
+    if (appState !== 'study') return;
+    // Throttle wheel events to prevent rapid skipping
+    if (Math.abs(e.deltaX) > 30 || Math.abs(e.deltaY) > 30) {
+      if (e.deltaX > 0 || e.deltaY > 0) {
+        handleNext();
+      } else {
+        handlePrev();
+      }
+    }
   };
 
   // Keyboard shortcuts
@@ -389,8 +409,25 @@ export default function App() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.1 }}
-            className="w-full max-w-2xl flex flex-col gap-8"
+            onWheel={handleWheel}
+            className="w-full max-w-2xl flex flex-col gap-8 relative"
           >
+            {/* Touch/Click Navigation Overlays (Grey Space) */}
+            <div 
+              className="fixed inset-y-0 left-0 w-[15%] z-0 cursor-pointer hover:bg-black/5 transition-colors hidden md:block"
+              onClick={handlePrev}
+              title="Previous Card"
+            />
+            <div 
+              className="fixed inset-y-0 right-0 w-[15%] z-0 cursor-pointer hover:bg-black/5 transition-colors hidden md:block"
+              onClick={handleNext}
+              title="Next Card"
+            />
+            
+            {/* Mobile Touch Targets (Always active but invisible) */}
+            <div className="fixed inset-y-0 left-0 w-[20%] z-0 md:hidden" onClick={handlePrev} />
+            <div className="fixed inset-y-0 right-0 w-[20%] z-0 md:hidden" onClick={handleNext} />
+
             {/* Header / Progress */}
             <div className="flex items-center justify-between px-2 min-h-[60px]">
               <div className="flex items-center gap-2">
