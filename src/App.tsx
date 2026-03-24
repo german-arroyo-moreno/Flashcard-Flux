@@ -8,7 +8,11 @@ import {
   FileText,
   Shuffle,
   Download,
-  Upload
+  Upload,
+  Maximize,
+  Minimize,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { cn } from './lib/utils';
@@ -86,7 +90,14 @@ Images are automatically scaled to fit perfectly on your handwritten cards.
 
 ---
 
-## Flashcard 10
+## Flashcard 11
+**Q:** How can I study without **distractions**?  
+**A:** Use **Fullscreen Mode (F)** to fill your screen, and **Distraction-Free Mode (D)** to hide the progress bar and focus entirely on the cards.  
+Look for the **Maximize** and **Eye** icons in the study header!
+
+---
+
+## Flashcard 12
 **Q:** Why does it look like **pen and paper**?  
 **A:** We designed it to mimic the **tactile feel** of physical study cards, using handwritten fonts and ruled paper textures to help you focus.`;
 
@@ -125,6 +136,29 @@ export default function App() {
   const [isFlipped, setIsFlipped] = useState(false);
   const [shuffleMode, setShuffleMode] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [distractionFree, setDistractionFree] = useState(false);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(err => {
+        console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+      });
+      setIsFullscreen(true);
+    } else {
+      document.exitFullscreen();
+      setIsFullscreen(false);
+    }
+  };
+
+  // Listen for fullscreen change events (e.g. if user presses Esc)
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
 
   const handleExport = () => {
     const blob = new Blob([markdown], { type: 'text/markdown' });
@@ -204,6 +238,14 @@ export default function App() {
         case 'r':
         case 'R':
           shuffleDeck();
+          break;
+        case 'f':
+        case 'F':
+          toggleFullscreen();
+          break;
+        case 'd':
+        case 'D':
+          setDistractionFree(prev => !prev);
           break;
       }
     };
@@ -350,37 +392,57 @@ export default function App() {
             className="w-full max-w-2xl flex flex-col gap-8"
           >
             {/* Header / Progress */}
-            <div className="flex items-center justify-between px-2">
+            <div className="flex items-center justify-between px-2 min-h-[60px]">
               <div className="flex items-center gap-2">
+                {!distractionFree && (
+                  <>
+                    <button 
+                      onClick={resetStudy}
+                      className="p-2 hover:bg-black/5 rounded-full transition-colors text-black/40 hover:text-black"
+                      title="Back to Setup"
+                    >
+                      <ChevronLeft size={24} />
+                    </button>
+                    <button 
+                      onClick={shuffleDeck}
+                      className="p-2 hover:bg-black/5 rounded-full transition-colors text-black/40 hover:text-black"
+                      title="Randomize Deck (R)"
+                    >
+                      <Shuffle size={20} />
+                    </button>
+                  </>
+                )}
                 <button 
-                  onClick={resetStudy}
+                  onClick={toggleFullscreen}
                   className="p-2 hover:bg-black/5 rounded-full transition-colors text-black/40 hover:text-black"
-                  title="Back to Setup"
+                  title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen (F)"}
                 >
-                  <ChevronLeft size={24} />
+                  {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
                 </button>
                 <button 
-                  onClick={shuffleDeck}
+                  onClick={() => setDistractionFree(!distractionFree)}
                   className="p-2 hover:bg-black/5 rounded-full transition-colors text-black/40 hover:text-black"
-                  title="Randomize Deck (R)"
+                  title={distractionFree ? "Show UI" : "Distraction Free (D)"}
                 >
-                  <Shuffle size={20} />
+                  {distractionFree ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
-              <div className="flex flex-col items-center gap-1">
-                <span className="text-[10px] font-mono uppercase tracking-widest text-black/40">Progress</span>
-                <div className="w-48 h-1 bg-black/10 rounded-full overflow-hidden">
-                  <motion.div 
-                    className="h-full bg-accent"
-                    initial={{ width: 0 }}
-                    animate={{ width: `${progress}%` }}
-                  />
+              {!distractionFree && (
+                <div className="flex flex-col items-center gap-1">
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-black/40">Progress</span>
+                  <div className="w-48 h-1 bg-black/10 rounded-full overflow-hidden">
+                    <motion.div 
+                      className="h-full bg-accent"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${progress}%` }}
+                    />
+                  </div>
+                  <span className="text-[10px] font-mono text-black/40 mt-1">
+                    {currentIndex + 1} / {deck.length}
+                  </span>
                 </div>
-                <span className="text-[10px] font-mono text-black/40 mt-1">
-                  {currentIndex + 1} / {deck.length}
-                </span>
-              </div>
-              <div className="w-10" /> {/* Spacer */}
+              )}
+              <div className="w-10" /> {/* Spacer to keep progress centered */}
             </div>
 
             {/* Card Container */}
