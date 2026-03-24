@@ -1,0 +1,105 @@
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Inter:wght@100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-hand: "Caveat", cursive;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-paper: #fdfaf3;
+  --color-ink: #1a1a1a;
+  --color-ink-blue: #1e3a8a;
+  --color-accent: #d97706;
+}
+
+@layer base {
+  body {
+    @apply bg-[#e5e7eb] text-[var(--color-ink)] font-sans antialiased overflow-hidden;
+    background-image: radial-gradient(#d1d5db 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+}
+
+.paper-card {
+  @apply bg-[var(--color-paper)] shadow-[0_10px_30px_-10px_rgba(0,0,0,0.3)] border border-black/5;
+  background-image: 
+    linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+  background-size: 100% 2rem;
+  background-position: 0 1rem;
+}
+
+.paper-card::before {
+  content: '';
+  position: absolute;
+  left: 3rem;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background-color: rgba(255, 0, 0, 0.2);
+}
+
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+/* Markdown styling for handwritten look */
+.markdown-body {
+  @apply font-hand text-3xl leading-relaxed text-[var(--color-ink-blue)];
+}
+
+.markdown-body p {
+  @apply mb-2;
+}
+
+.markdown-body strong {
+  @apply text-[var(--color-ink)] font-bold underline decoration-accent/30 underline-offset-4;
+}
+
+.markdown-body code {
+  @apply font-mono text-sm bg-black/5 px-1 rounded;
+}
+
+.markdown-body img {
+  @apply max-w-full h-auto rounded-lg shadow-sm mx-auto my-4 border border-black/5;
+}
+
+.preview-card .markdown-body img {
+  @apply max-h-24 w-auto my-2;
+}
+
+.ink-smudge {
+  filter: blur(0.4px);
+}
+
+.preview-card .markdown-body {
+  @apply text-base leading-tight;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
